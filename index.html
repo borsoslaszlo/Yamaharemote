@@ -17,6 +17,13 @@
             var yamaha_ip_address='http://192.168.1.106';
             var systemfeatures = {};
             var systemstatus = {};
+            var playinfo = {};
+            
+
+
+
+
+
 
             //static functions
             var functions = {'play': yamaha_ip_address+'/YamahaExtendedControl/v1/netusb/setPlayback?playback=play',
@@ -28,10 +35,14 @@
             'shuffle':yamaha_ip_address+'/YamahaExtendedControl/v1/netusb/toggleShuffle',
             'repeat':yamaha_ip_address+'/YamahaExtendedControl/v1/netusb/toggleRepeat',
             'getfeatures': yamaha_ip_address+'/YamahaExtendedControl/v1/system/getFeatures',
+            'getplayinfo': yamaha_ip_address+'/YamahaExtendedControl/v1/netusb/getPlayInfo'
             }
 
-            window.setInterval (getStatus,2000);
-
+            //window.setInterval (getStatus,2000);
+            window.setInterval (function () {
+                getStatus();
+                get_playinfo();
+            },2000);
 
 
             function buildurls ()
@@ -45,11 +56,56 @@
             'shuffle':yamaha_ip_address+'/YamahaExtendedControl/v1/netusb/toggleShuffle',
             'repeat':yamaha_ip_address+'/YamahaExtendedControl/v1/netusb/toggleRepeat',
             'getfeatures': yamaha_ip_address+'/YamahaExtendedControl/v1/system/getFeatures',
+            'getplayinfo': yamaha_ip_address+'/YamahaExtendedControl/v1/netusb/getPlayInfo',
             'poweronoff': yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setPower?power=toggle',
-            'mute': yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setMute?enable='+ (systemstatus.mute?'false':'true')
+            'mute': yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setMute?enable='+ (systemstatus.mute?'false':'true'),
+            'change_input_to_napster' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=napster',
+            'change_input_to_spotify' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=spotify',
+            'change_input_to_qobuz' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=qobuz',
+            'change_input_to_tidal' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=tidal',
+            'change_input_to_deezer' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=deezer',
+            'change_input_to_airplay' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=airplay',
+            'change_input_to_server' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=server',
+            'change_input_to_net_radio' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=net_radio',
+            'change_input_to_bluetooth' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=bluetooth',
+            'change_input_to_usb' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=usb',
+            'change_input_to_tuner' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=tuner',
+            'change_input_to_optical1' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=optical1',
+            'change_input_to_optical2' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=optical2',
+            'change_input_to_coaxial1' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=coaxial1',
+            'change_input_to_coaxial2' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=coaxial2',
+            'change_input_to_line1' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=line1',
+            'change_input_to_line2' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=line2',
+            'change_input_to_line3' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=line3',
+            'change_input_to_cd' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=line_cd',
+            'change_input_to_phono' : yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id +'/setInput?input=phono',
+
+            //http://{host}/YamahaExtendedControl/v1/main/setInput?input=airplay&mode=autoplay_disabled
 
             }
             }
+
+
+
+            function set_volume (volume_value) {
+
+                const request  = new XMLHttpRequest ();
+                request.responseType='json';
+                request.onload = function () {
+                    
+        
+        
+                }
+            request.open ('GET', yamaha_ip_address+'/YamahaExtendedControl/v1/'+systemfeatures.zone[0].id+'/setVolume?volume=' + volume_value , true );
+            request.send();
+
+            }
+
+
+
+
+
+
 
 
             function getfeatures ()
@@ -59,14 +115,24 @@
                 request.onload = function () {
                         systemfeatures = this.response;
                         getStatus();
+                        alert (JSON.stringify(systemfeatures));
+                        // disable the input buttons that are not in the systemfeatures input list 
+                        document.querySelectorAll("button.input").forEach ( function
+                        (inputbutton) {
+                            if (!systemfeatures.system.input_list.find (input => input.id == inputbutton.id.split('-')[1]))
+                            {
+                                inputbutton.disabled=true;
+                            }
+                        }
                         
-                        
+                        );
                         
                 }
                 request.open ('GET', functions['getfeatures'] , true);
                 request.send();
                 
             }
+
 
             
             function getStatus ()
@@ -76,6 +142,13 @@
                 request.onload = function () {
                         systemstatus = this.response;
                         //alert (JSON.stringify(systemstatus));
+
+                        var volume_slider = document.getElementById ('volume_slider');            
+                        volume_slider.min=0;
+                        volume_slider.max=systemstatus.max_volume;
+                        volume_slider.value=systemstatus.volume;
+
+
                         buildurls ();
                         
                 }
@@ -83,7 +156,66 @@
                 request.send();
                 
             }
-       
+
+            function get_playinfo () {
+                const request  = new XMLHttpRequest ();
+                request.responseType='json';
+                request.onload = function () {
+                        playinfo = this.response;
+                        //alert (JSON.stringify(playinfo));
+                        if (playinfo.shuffle!='off'){
+                            (document.getElementById ('button_shuffle')).style.color="yellow";
+                        } else {
+                            (document.getElementById ('button_shuffle')).style.color="#f8f9fa";
+                        }
+
+                        if (playinfo.repeat!='off'){
+                            (document.getElementById ('button_repeat')).style.color="yellow";
+                        } else {
+                            (document.getElementById ('button_shuffle')).style.color="#f8f9fa";
+                        }
+
+                        (document.getElementById ('artist')).innerText=playinfo.artist;
+                        (document.getElementById ('album')).innerText=playinfo.album;
+                        (document.getElementById ('track')).innerText=playinfo.track;
+
+                        if (playinfo.albumart_url != '')
+                        {
+                            (document.getElementById ('albumart')).src =  yamaha_ip_address + playinfo.albumart_url;
+
+                        }
+                        else { 
+                            (document.getElementById ('albumart')).src = "./img/no_albumart.jpg";
+                        }
+
+
+                        artist_label= document.getElementById('artist_label');
+                        track_label = document.getElementById ('track_label');
+                        switch ( playinfo.input) {
+                            case 'net_radio':
+                                artist_label.innerText='Radio Station:'
+                                track_label.innerText='Artist/Track:'
+                                
+                            break;
+                            default: 
+                                artist_label.innerText='Artist:'
+                                track_label.innerText='Track:';
+                        }
+
+
+                        
+                }
+                request.open ('GET', functions['getplayinfo'] , true );
+                request.send();
+
+
+            }
+
+
+
+
+
+
             function get_result (buttonfunc){
 
                 const request = new XMLHttpRequest();
@@ -119,146 +251,370 @@
             }
 
         </script>
+        <style>
+            .custom-bg {background-color : black}
+            .custom-button-color {background-color: whitesmoke;}
+            .overflowscroll-y {
+                overflow-y: scroll;
+                height: 300px;}
+            .percent80width {
+                width: 80%;}
+            .percent20width {
+                width: 20%;
+            }            
+
+        </style>
 
     </head>
-    <body>
+    <body class="custom-bg">
         <header>
 
         </header>
-        <main>
+        <main >
             <div class="container">
 
 
 
-                <div class="row">
-                    <div class="col-12 d-flex justify-content-end">
-                        <img src="./img/power-off-solid.svg" width="50" height="50" class="m-2" onclick="get_result('poweronoff')"> 
+                <div class="row m-3 ">
+                    <div class="col d-flex justify-content-start text-white">
+                        <h1>
+                            Yamaha MusicCast Controller 
+                        </h1>
+
+                    </div>
+                    <div class="col d-flex align-items-end text-white">
+                        (developed for R-N602)
+                    </div>
+
+                    <div class="col-1 d-flex justify-content-end">
+                        <img src="./img/power-off-solid.png" width="50" height="50"  onclick="get_result('poweronoff')"> 
 
                     </div>
 
                 </div>
 
-                <div class="container ">
+                <div class="container overflowscroll-y">
                     <div class="row gy-3 gx-3" >
                         <div class="col" >
-                            <img src="./img/napster_logo.png"    width="100" height="100" alt="">
+                            <div class=" d-flex justify-content-center text-white ">
+                                <button id="input-napster" type="button" class="input btn btn-outline-light m-2" onclick="get_result('change_input_to_napster') " >
+                                    <img src="./img/napster_logo.png"    width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Napster
+                            </div>
                         </div>
                         <div class="col">
-                            <img src="./img/spotify-logo-black.jpg"  width="100" height="100" alt="">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-spotify" type="button" class="input btn btn-outline-light m-2" onclick="get_result('change_input_to_spotify') " >
+                                    <img src="./img/spotify-logo-black.jpg"  width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white ">
+                                Spotify
+                            </div>
                         </div>
                         <div class="col">
-                            <img src="./img/qobuz_logo.png" width="100" height="100" alt="">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-qobuz" type="button" class="input btn btn-outline-light m-2" onclick="get_result('change_input_to_qobuz') " >
+                                    <img src="./img/qobuz_logo.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Qobuz
+                            </div>
                         </div>
                         <div class="col">
-                            <img src="./img/tidal_logo.png" width="100" height="100" alt="">
-                        </div>
-                        <div class="col">
-                            <img src="./img/deezer_logo.png" width="100" height="100" alt="">
+                            <div class=" d-flex justify-content-center text-white ">
+                                <button id="input-tidal" type="button" class=" input btn btn-outline-light m-2" onclick="get_result('change_input_to_tidal') " >
+                                    <img src="./img/tidal_logo.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Tidal
+                            </div>
                         </div>
 
                         <div class="col">
-                            <img src="./img/airplay_logo.png" width="100" height="100" alt="">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-deezer" type="button" class="input btn btn-outline-light m-2" onclick="get_result('change_input_to_deezer') " >
+                                    <img src="./img/deezer_logo.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Deezer
+                            </div>
                         </div>
 
                         <div class="col">
-                            <img src="./img/shared_folder_icon.png" width="100" height="100" alt="">
-                        </div>
-                        <div class="col">
-                            <img src="./img/netradio_icon.png" width="100" height="100" alt="">
-                        </div>
-                        <div class="col">
-                            <img src="./img/bluetooth_icon.png" width="100" height="100" alt="">
-                        </div>
-                        <div class="col">
-                            <img src="./img/usb_icon.png" width="100" height="100" alt="">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-airplay" type="button" class="input btn btn-outline-light m-2" onclick="get_result('change_input_to_airplay') " >
+                                    <img src="./img/airplay_logo.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Airplay
+                            </div>
                         </div>
 
                         <div class="col">
-                            <img src="./img/radio_icon.png" width="100" height="100" alt="">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-server" type="button" class=" input btn btn-outline-light m-2" onclick="get_result('change_input_to_server') " >
+                                    <img src="./img/shared_folder_icon.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Server
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-net_radio" type="button" class="input btn btn-outline-light m-2" onclick="get_result('change_input_to_net_radio') " >
+                                    <img src="./img/netradio_icon.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Net Radio
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-bluetooth" type="button" class="input btn btn-outline-light m-2" onclick="get_result('change_input_to_bluetooth') " >
+                                    <img src="./img/bluetooth_icon.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Bluetooth
+                            </div>
                         </div>
 
                         <div class="col">
-                            <img src="./img/note.png" width="100" height="100" alt="">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-usb" type="button" class="input btn btn-outline-light m-2" onclick="get_result('change_input_to_usb') " >
+                                    <img src="./img/usb_icon.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                USB
+                            </div>
+                        </div>
+
+
+                        <div class="col">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-tuner" type="button" class="input btn btn-outline-light m-2" onclick="get_result('change_input_to_tuner') " >
+                                    <img src="./img/radio_icon.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Tuner
+                            </div>
+                        </div>
+
+
+                        <div class="col">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-optical1" type="button" class="input btn btn-outline-light m-2" onclick="get_result('change_input_to_optical1') " >
+                                    <img src="./img/note.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Optical1
+                            </div>
+
                         </div>
 
                         <div class="col">
-                            <img src="./img/note.png" width="100" height="100" alt="">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-optical2" type="button" class="input btn btn-outline-light m-2" onclick="get_result('change_input_to_optical2') " >
+                                    <img src="./img/note.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Optical2
+                            </div>
+
                         </div>
 
                         <div class="col">
-                            <img src="./img/note.png" width="100" height="100" alt="">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-coaxial1" type="button" class="input btn btn-outline-light m-2" onclick="get_result('change_input_to_coaxial1') " >
+                                    <img src="./img/note.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Coaxial1
+                            </div>
+
                         </div>
 
                         <div class="col">
-                            <img src="./img/note.png" width="100" height="100" alt="">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-coaxial2" type="button" class="input btn btn-outline-light m-2" onclick="get_result('change_input_to_coaxial2') " >
+                                    <img src="./img/note.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Coaxial2
+                            </div>
                         </div>
 
+                        <div class="col">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-line1" type="button" class="input btn btn-outline-light m-2" onclick="get_result('change_input_to_line1') " >
+                                    <img src="./img/note.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Line1
+                            </div>
+                        </div>
 
+                        <div class="col">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-line2" type="button" class="input btn btn-outline-light m-2" onclick="get_result('change_input_to_line2') " >
+                                    <img src="./img/note.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Line2
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-line3" type="button" class="input btn btn-outline-light m-2" onclick="get_result('change_input_to_line3') " >
+                                    <img src="./img/note.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Line3
+                            </div>
+                        </div>
+
+                        <div class="col">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-line_cd" type="button" class=" input btn btn-outline-light m-2" onclick="get_result('change_input_to_cd') " >
+                                    <img src="./img/cd_icon.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                CD
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class=" d-flex justify-content-center text-white">
+                                <button id="input-phono" type="button" class="input btn btn-outline-light m-2" onclick="get_result('next') " >
+                                    <img src="./img/phono_icon.png" width="100" height="100" alt="">
+                                </button>
+                            </div>
+                            <div class=" d-flex justify-content-center text-white">
+                                Phono
+                            </div>
+                        </div>
                     </div>
-                
-
-
-
-
                 </div>
 
 
+                    <div class = "container m-3" >
 
+                        <div  class= "row " >
+                            <div id="artist_label" class="col text-white ">
+                                Artist:
+                            </div>
+                            <div id="artist" class="col text-white">
+                                előadó
+                            </div>
+                            <div id="album_label" class="col text-white">
+                                Album:
+                            </div>
+                            <div id="album" class="col text-white">
+                                album neve
+                            </div>
+                            <div id = "track_label" class="col text-white">
+                                Track:
+                            </div>
+                            <div  id ="track" class="col text-white">
+                                felvétel cím
+                            </div>
+                           
 
-                <div class="row">
-                    <div class="col-12 d-flex justify-content-center">
-                        <button type="button" class="btn btn-success  " onclick="get_result('mute') " >
-                            MUTE
-                        </button>
-                    </div>
-                    
+                            <div class="col text-white">
+                                <div class="row">
+                                    <div class="col ">
+                                        <img id = "albumart" src="./img/no_albumart.jpg" width="100px" height="100px"/>
+                                    </div>
+                                </div>
+    
+                            </div>
                 </div>
 
-                <div class="row">
-                    <div class="col-12"></div>
-                </div>
-
-                <div class="row">
-                    <div class="col-4 d-grid gap-2 ">
-                        <button type="button" class="btn btn-success m-2 " onclick="get_result('repeat') " >
-                            REPEAT
-                        </button>
-                    </div>
-                    <div class="col-4 d-grid gap-2 ">
-                        <button type="button" class="btn btn-success m-2" onclick="get_result('play_pause') " >
-                            >/||
-                        </button>
-                    </div>
-                    <div class="col-4 d-grid gap-2 ">
-                        <button type="button" class="btn btn-success m-2 "onclick="get_result('shuffle') " >
-                            SHUFFLE
-                        </button>
-                    </div>
-                </div>
+       
 
 
-                <div class="row">
-                    <div class="col-4 d-grid gap-2 ">
-                        <button type="button" class="btn btn-success m-2 " onclick="get_result('previous') " >
-                            |<<
-                        </button>
-                    </div>
-                    <div class="col-4 d-grid gap-2 ">
-                        <button type="button" class="btn btn-success  m-2" onclick="get_result('stop') " >
-                            []
-                        </button>
+                <div class = "container mt-5 mb-5 ">
+                    <div class="row">
+                        <div class = "col-9 text-white">
+                            <label for="customRange3" class="form-label">Volume</label>
+                            <input id = "volume_slider" type="range" class="form-range"  step="1" oninput="set_volume(this.value)">
 
-                    </div>
-                    <div class="col-4 d-grid gap-2">
-                        <button type="button" class="btn btn-success m-2" onclick="get_result('next') " >
-                            >>|
-                        </button>
+                        </div>
+
+                        <div class="col-3 d-flex justify-content-center">
+                            <button type="button" class="btn btn-outline-light m-2  " onclick="get_result('mute') " >
+                                MUTE
+                            </button>
+                        </div>
+                        
                     </div>
 
+                    <div class="row">
+                        <div class="col-12"></div>
+                    </div>
 
+                    <div class="row">
+                        <div class="col-4 d-grid gap-2 ">
+                            <button id="button_repeat" type="button" class="btn btn-outline-light m-2 " onclick="get_result('repeat') " >
+                                REPEAT
+                            </button>
+                        </div>
+                        <div class="col-4 d-grid gap-2 ">
+                            <button id="button_playpause" type="button" class="btn btn-outline-light m-2" onclick="get_result('play_pause') " >
+                                >/||
+                            </button>
+                        </div>
+                        <div class="col-4 d-grid gap-2 ">
+                            <button id="button_shuffle" type="button" class="btn btn-outline-light m-2 "onclick="get_result('shuffle') " >
+                                SHUFFLE
+                            </button>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-4 d-grid gap-2 ">
+                            <button id="button_previous" type="button" class="btn btn-outline-light m-2 " onclick="get_result('previous') " >
+                                |<<
+                            </button>
+                        </div>
+                        <div class="col-4 d-grid gap-2 ">
+                            <button id="button_stop" type="button" class="btn btn-outline-light  m-2" onclick="get_result('stop') " >
+                                []
+                            </button>
+
+                        </div>
+                        <div class="col-4 d-grid gap-2">
+                            <button id="button_next" type="button" class="btn btn-outline-light m-2" onclick="get_result('next') " >
+                                >>|
+                            </button>
+                        </div>
+                    </div>
 
                 </div>
             </div>
+            
+            
 
             
         </main>
